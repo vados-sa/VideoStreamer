@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: TelemetryServer
+
+server:
+  port: 9090
+
+management:
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: http://127.0.0.1:4318/v1/traces
+    logging:
+      export:
+        otlp:
+          endpoint: http://127.0.0.1:4318/v1/logs
+  otlp:
+    metrics:
+      export:
+        url: http://127.0.0.1:4318/v1/metrics
