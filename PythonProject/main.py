@@ -2,8 +2,8 @@ import asyncio
 import pathlib
 
 import uvicorn
-#import cv2 as cv
-#import numpy as np
+import cv2 as cv
+import numpy as np
 from fastapi import FastAPI, WebSocket
 import httpx
 from httpx import TimeoutException, ConnectError
@@ -48,13 +48,17 @@ async def ws_videostream(websocket: WebSocket):
     try:
         while True:
             msg = await websocket.receive()
-            print("received:", msg)
-            #data = await websocket.receive_bytes()
-            #frame = cv.imdecode(np.frombuffer(data, np.uint8), cv.IMREAD_COLOR)
-            #if frame is None:
-             #   print(f"bad frame, {len(data)} bytes")
-              #  continue
-            #print(frame.shape)
+
+            if msg.get("bytes"):
+                data = msg["bytes"]
+                frame = cv.imdecode(np.frombuffer(data, np.uint8), cv.IMREAD_COLOR)
+                if frame is None:
+                    print(f"bad frame, {len(data)} bytes")
+                    continue
+                print(f"got frame: {frame.shape}")
+            elif msg.get("text"):
+                print("text message:", msg["text"])
+
     except WebSocketDisconnect:
         print("Client disconnected")
     finally:
