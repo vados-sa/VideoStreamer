@@ -38,13 +38,14 @@ class WebSocketManager: NSObject, URLSessionWebSocketDelegate{
         print("WebSocket disconnected.")
     }
     
-    func sendMessage(text: String) {
-        let message = URLSessionWebSocketTask.Message.string(text)
-        webSocketTask?.send(message) { error in
+    func sendFrames(frames: Data) {
+        guard let task = webSocketTask else {return}
+        let message = URLSessionWebSocketTask.Message.data(frames)
+        task.send(message) { error in
             if let error = error {
-                print("Error sending message: \(error.localizedDescription)")
+                print("Error sending frames: \(error.localizedDescription)")
             } else {
-                print("Sent message: \(text)")
+                print("Frames sent.")
             }
         }
     }
@@ -68,7 +69,6 @@ class WebSocketManager: NSObject, URLSessionWebSocketDelegate{
     // MARK: - URLSessionSocketDelegate
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didOpenWithProtocol protocolName: String?) {
         print("WebSocket connected")
-        sendMessage(text: "Hi")
     }
     
     func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
@@ -85,23 +85,4 @@ class WebSocketManager: NSObject, URLSessionWebSocketDelegate{
             print("WebSocket session failed with generic error: \(error.localizedDescription)")
         }
     }
-
-//    func sendFrameToServer(/*sampleBuffer: CMSampleBuffer*/message: String) {
-//        //print(sampleBuffer)
-//        
-//        self.connect()
-//        // send message
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-//            self.sendMessage(text: message)
-//        }
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 6) {
-//            self.disconnect()
-//        }
-//        
-////        if let url = URL(string: "ws://192.168.178.69:8000/ws/videostream") {
-////            let manager = WebSocketManager(url: url)
-////
-////        }
-//    }
-    
 }
