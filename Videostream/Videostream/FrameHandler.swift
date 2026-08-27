@@ -146,9 +146,10 @@ extension FrameHandler: AVCaptureVideoDataOutputSampleBufferDelegate {
         didOutput sampleBuffer: CMSampleBuffer,
         from connection: AVCaptureConnection
     ) {
-        //print(sampleBuffer)
+//        print(sampleBuffer)
         // 1) Send frame to backend
-        //ws.sendFrameToServer(sampleBuffer)
+        guard let compressedFrames = jpegData(from: sampleBuffer) else {return}
+        self.ws.sendFrames(frames: compressedFrames)
 
         // 2) Optional local preview in SwiftUI
         guard let image = cgImage(from: sampleBuffer) else { return }
