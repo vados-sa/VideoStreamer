@@ -116,11 +116,11 @@ final class FrameHandler: NSObject, ObservableObject {
         captureSession.addOutput(videoOutput)
 
         if let connection = videoOutput.connection(with: .video),
-           connection.isVideoRotationAngleSupported(90) {
+           connection.isVideoRotationAngleSupported(90) { // portrait mode
             connection.videoRotationAngle = 90
         }
 
-        captureSession.commitConfiguration()
+        captureSession.commitConfiguration() // apply everything atomically
     }
 
     // MARK: - Frame conversion
