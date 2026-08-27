@@ -1,7 +1,9 @@
 import asyncio
 import pathlib
-import cv2 as cv
-import numpy as np
+
+import uvicorn
+#import cv2 as cv
+#import numpy as np
 from fastapi import FastAPI, WebSocket
 import httpx
 from httpx import TimeoutException, ConnectError
@@ -59,4 +61,7 @@ async def ws_videostream(websocket: WebSocket):
         #cv.destroyAllWindows()
         print("Application Closing!")
 
-# uv run fastapi dev
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000) # to run: uv run python main.py
+
