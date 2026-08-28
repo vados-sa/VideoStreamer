@@ -8,13 +8,16 @@
 import SwiftUI
 
 struct TelemetryView: View {
+    @Environment(\.dismiss) var dismiss
+    
     var body: some View {
         Color(red: 226/255, green: 0, blue: 116/255)
             .ignoresSafeArea()
             .overlay(
                 VStack (alignment: .trailing) {
                     Button {
-                        // code
+                        // clean telemetry data
+                        dismiss()
                     } label: {
                         Image(systemName: "multiply")
                             .foregroundColor(Color(red: 226/255, green: 0, blue: 116/255))
