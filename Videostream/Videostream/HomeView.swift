@@ -11,6 +11,7 @@ import SwiftUI
 struct HomeView: View {
 //    @State private var isStreaming = false // control camera sheet visibility
     @StateObject private var model = FrameHandler()
+    @State private var showTelemetry = false
     
     var body: some View {
         ZStack(alignment: .bottom){
@@ -19,13 +20,19 @@ struct HomeView: View {
                 FrameView(image: model.frame)
                     .ignoresSafeArea()
             } else {
-                Color.black.ignoresSafeArea() // might be where I disply telemtry data
+                Color.black.ignoresSafeArea()
             }
             
             VStack {
                 Spacer()
                 Button(model.isRunning ? "Stop Streaming" : "Start Streaming") {
-                    model.isRunning ? model.stop() : model.start()
+                    if model.isRunning {
+                        model.stop()
+                        showTelemetry = true
+                    } else {
+                        model.start()
+                    }
+                    
                 }
                 .font(.headline)
                 .padding()
@@ -33,6 +40,9 @@ struct HomeView: View {
                 .foregroundStyle(.white)
                 .cornerRadius(25)
             }
+        }
+        .fullScreenCover(isPresented: $showTelemetry) {
+            TelemetryView()
         }
     }
 }
