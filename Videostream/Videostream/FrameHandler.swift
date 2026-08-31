@@ -56,7 +56,7 @@ final class FrameHandler: NSObject, ObservableObject {
                 if case .success(let message) = result {
                     switch message {
                     case .string(let text):
-                        DispatchQueue.main.async { self?.telemetryData = text }
+                        DispatchQueue.main.async { self?.telemetryData += "\n" + text }
                     case .data(let data):
                         DispatchQueue.main.async {
                             self?.telemetryData = String(data: data, encoding: .utf8) ?? ""
