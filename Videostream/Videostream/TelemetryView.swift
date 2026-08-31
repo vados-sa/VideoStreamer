@@ -17,7 +17,7 @@ struct TelemetryView: View {
             .overlay(
                 VStack (alignment: .trailing) {
                     Button {
-                        // clean telemetry data
+                        telemetryData = ""
                         dismiss()
                     } label: {
                         Image(systemName: "multiply")
