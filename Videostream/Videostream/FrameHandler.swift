@@ -54,7 +54,6 @@ final class FrameHandler: NSObject, ObservableObject {
             
             self.ws.onReceiveMessage = { [weak self] result in
                 if case .success(let message) = result {
-                    // URLSessionWebSocketTask.Message is an enum — handle both cases
                     switch message {
                     case .string(let text):
                         DispatchQueue.main.async { self?.telemetryData = text }
