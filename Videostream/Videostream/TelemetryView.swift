@@ -33,7 +33,7 @@ struct TelemetryView: View {
                             .fixedSize(horizontal: false, vertical: true)
 //                            .multilineTextAlignment(.center)
                             .padding()
-                            .frame(width: 350, height: .infinity)
+                            .frame(width: 350)
                             .background(Rectangle().fill(Color.white).shadow(radius: 3))
                     }
                 }
