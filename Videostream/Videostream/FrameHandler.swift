@@ -13,7 +13,7 @@ import Combine
 final class FrameHandler: NSObject, ObservableObject {
     @Published var frame: CGImage?
     @Published var isRunning = false
-    //@Published var isConnected = false
+    @Published var telemetryData: String = ""
 
     private let captureSession = AVCaptureSession()
     private let sessionQueue = DispatchQueue(label: "camera.session.queue")
@@ -50,6 +50,22 @@ final class FrameHandler: NSObject, ObservableObject {
             if !self.captureSession.isRunning {
                 self.captureSession.startRunning()
                 DispatchQueue.main.async { self.isRunning = true }
+            }
+            
+            self.ws.onReceiveMessage = { [weak self] result in
+                if case .success(let message) = result {
+                    // URLSessionWebSocketTask.Message is an enum — handle both cases
+                    switch message {
+                    case .string(let text):
+                        DispatchQueue.main.async { self?.telemetryData = text }
+                    case .data(let data):
+                        DispatchQueue.main.async {
+                            self?.telemetryData = String(data: data, encoding: .utf8) ?? ""
+                        }
+                    @unknown default:
+                        break
+                    }
+                }
             }
             
             self.ws.connect()
