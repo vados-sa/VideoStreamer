@@ -24,7 +24,7 @@ final class FrameHandler: NSObject, ObservableObject {
     private var isConfigured = false
     
     private lazy var ws: WebSocketManager = {
-        let url = URL(string: "ws://127.0.0.1:8000/ws/videostream")
+        let url = URL(string: "ws://Vanessas-MacBook-Pro.local:8000/ws/videostream")
         return WebSocketManager(url: url!)
     }()
 
@@ -79,8 +79,6 @@ final class FrameHandler: NSObject, ObservableObject {
                 self.captureSession.stopRunning()
                 DispatchQueue.main.async { self.isRunning = false }
             }
-            
-//            self.outputQueue.sync {}
             
             self.ws.disconnect()
         }
