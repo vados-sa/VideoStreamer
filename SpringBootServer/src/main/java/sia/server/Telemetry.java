@@ -5,12 +5,16 @@ import lombok.Data;
 @Data
 public class Telemetry {
     private String timestamp;
-    private String traceId;
-    private String spanId;
+    private long uptimeMillis;
+    private long usedMemoryBytes;
+    private long maxMemoryBytes;
+    private long requestCount;
 
-    public Telemetry(String timestamp, String traceId, String spanId) {
+    public Telemetry(String timestamp, long uptimeMillis, long usedMemoryBytes, long maxMemoryBytes, long requestCount) {
         this.timestamp = timestamp;
-        this.traceId = traceId;
-        this.spanId = spanId;
+        this.uptimeMillis = uptimeMillis;
+        this.usedMemoryBytes = usedMemoryBytes;
+        this.maxMemoryBytes = maxMemoryBytes;
+        this.requestCount = requestCount;
     }
 }
