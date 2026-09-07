@@ -42,7 +42,7 @@ struct HomeView: View {
             }
         }
         .fullScreenCover(isPresented: $showTelemetry) {
-            TelemetryView(telemetryData: $model.telemetryData)
+            TelemetryView(telemetryLog: $model.telemetryLog)
         }
     }
 }

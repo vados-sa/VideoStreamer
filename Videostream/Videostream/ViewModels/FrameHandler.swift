@@ -13,7 +13,7 @@ import Combine
 final class FrameHandler: NSObject, ObservableObject {
     @Published var frame: CGImage?
     @Published var isRunning = false
-    @Published var telemetryData: String = ""
+    @Published var telemetryLog: [TelemetryReading] = []
 
     private let captureSession = AVCaptureSession()
     private let sessionQueue = DispatchQueue(label: "camera.session.queue")
@@ -53,17 +53,14 @@ final class FrameHandler: NSObject, ObservableObject {
             }
             
             self.ws.onReceiveMessage = { [weak self] result in
-                if case .success(let message) = result {
-                    switch message {
-                    case .string(let text):
-                        DispatchQueue.main.async { self?.telemetryData += "\n" + text }
-                    case .data(let data):
-                        DispatchQueue.main.async {
-                            self?.telemetryData = String(data: data, encoding: .utf8) ?? ""
-                        }
-                    @unknown default:
-                        break
-                    }
+                guard case .success(.string(let text)) = result,
+                      let envelopeData = text.data(using: .utf8),
+                      let envelope = try? JSONDecoder().decode(TelemetryEnvelope.self, from: envelopeData),
+                      envelope.type == "telemetry"
+                else { return }
+
+                DispatchQueue.main.async {
+                    self?.telemetryLog.append(envelope.data)
                 }
             }
             
