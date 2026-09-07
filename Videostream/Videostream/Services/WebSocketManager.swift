@@ -16,10 +16,14 @@ class WebSocketManager: NSObject {
     // webSocketTask on every connect(). Invalidated only in deinit.
     private let urlSession: URLSession
 
-    // Serializes access to webSocketTask: connect()/disconnect() run on the
-    // caller's queue while the receive completion handlers run on another.
+    // Serializes access to webSocketTask / isConnected: connect()/disconnect()
+    // run on the caller's queue while the receive completion handlers run on another.
     private let stateQueue = DispatchQueue(label: "websocket.state.queue")
     private var webSocketTask: URLSessionWebSocketTask?
+
+    // Tracks whether we intend to be connected. Lets the receive loop tell an
+    // intentional disconnect() apart from a genuine socket failure.
+    private var isConnected = false
 
     var onReceiveMessage: ((Result<URLSessionWebSocketTask.Message, Error>) -> Void)?
 
@@ -46,6 +50,7 @@ class WebSocketManager: NSObject {
 
             let task = self.urlSession.webSocketTask(with: self.url)
             self.webSocketTask = task
+            self.isConnected = true
             task.resume()
         }
         print("Attempting to connect to WebSocket...")
@@ -54,6 +59,7 @@ class WebSocketManager: NSObject {
 
     func disconnect() {
         stateQueue.sync {
+            self.isConnected = false
             self.webSocketTask?.cancel(with: .goingAway, reason: nil)
             self.webSocketTask = nil
         }
@@ -61,7 +67,7 @@ class WebSocketManager: NSObject {
     }
 
     func sendFrames(frames: Data) {
-        let task = stateQueue.sync { webSocketTask }
+        let task = stateQueue.sync { isConnected ? webSocketTask : nil }
         guard let task else { return }
         let message = URLSessionWebSocketTask.Message.data(frames)
         task.send(message) { error in
@@ -74,7 +80,7 @@ class WebSocketManager: NSObject {
     }
 
     private func receiveMessage() {
-        let task = stateQueue.sync { webSocketTask }
+        let task = stateQueue.sync { isConnected ? webSocketTask : nil }
         guard let task else { return }
 
         task.receive { [weak self] result in
@@ -86,6 +92,15 @@ class WebSocketManager: NSObject {
                 // Recursively call receive to listen for the next message
                 self.receiveMessage()
             case .failure(let error):
+                // A cancellation triggered by our own disconnect() is expected —
+                // stay quiet. Only report a drop we didn't ask for.
+                let wasConnected = self.stateQueue.sync { () -> Bool in
+                    let connected = self.isConnected
+                    self.isConnected = false
+                    return connected
+                }
+                guard wasConnected else { return }
+
                 self.onReceiveMessage?(result) // Report the error
                 print("Error receiving message: \(error.localizedDescription)")
             }
